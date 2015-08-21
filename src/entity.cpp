@@ -74,3 +74,10 @@ void Entity::setTexture(sf::Texture& tex)
 	_size.x = tex.getSize().x;
 	_size.y = tex.getSize().y;
 }
+
+/*
+sf::Vector2i Entity::getPosition()
+{
+	return (sf::Vector2i) _pos;
+}
+*/

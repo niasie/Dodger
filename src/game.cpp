@@ -23,6 +23,8 @@ Game::Game()
   _bullets(),
   _textures()
 {
+	srand(time(0));
+
 	_window.setVerticalSyncEnabled(true);
 
 	// Imports all files in folder "res" into the _textures vector using dirent.h
@@ -65,6 +67,8 @@ void Game::tick()
 	inconsolata.loadFromFile("res/fonts/LiberationSans-Regular.ttf");
 	Menupoint test("PLAY", sf::Vector2i(10, 10), inconsolata);
 
+	int counter = 0;
+
 	while (_window.isOpen())
 	{
 		sf::Event event;
@@ -81,33 +85,48 @@ void Game::tick()
 
 	        _myPlayer.update((int) _window.getSize().x);
 
-	        test.update(_window);
+	        // test.update(_window);
 
-	        for (std::vector<Enemy>::iterator p = _enemies.begin(); p != _enemies.end(); p++)
+	        for (std::vector<Enemy>::iterator p = _enemies.begin(); p != _enemies.end();)
 	        {
 	        	/*
-	        	if (p->getPosition().y > (int) _window.getSize().y) _enemies.erase(p);
-	        	p->setPositionRel(0, p->getMovementSpeed());
-				*/
+	        	if (p->getPosition().y > _window.getSize().y)
+	        	{
+	        		_enemies.erase(p);
+	        	}
+	        	else
+	        	{
+	        		p->update();
+	        		++p;
+	        	}
+	        	*/
 
 	        	p->update();
+	        	++p;
 	        }
 
-	        for (std::vector<Entity>::iterator i = _bullets.begin(); i != _bullets.end(); i++)
+	        for (std::vector<Entity>::iterator i = _bullets.begin(); i != _bullets.end();)
 	        {
-	        	if (i->getPosition().y > (int) _window.getSize().y) _bullets.erase(i);
-	        	i->setPositionRel(0, -5);
-
-	        	for (std::vector<Enemy>::iterator e = _enemies.begin(); e != _enemies.end(); e++)
+	        	if (i->getPosition().y < 0)
 	        	{
-	        		if (e->getPosition().x <= 					i->getPosition().x &&
-	        			e->getPosition().x + e->getSize().x >= 	i->getPosition().x &&
-	        			e->getPosition().y <= 					i->getPosition().y &&
-	        			e->getPosition().y + e->getSize().y >= 	i->getPosition().y)
-	        		{
 	        			_bullets.erase(i);
-	        			_enemies.erase(e);
-	        		}
+	        	}
+	        	else
+	        	{
+	        		i->setPositionRel(0, -5);
+
+	        		for (std::vector<Enemy>::iterator e = _enemies.begin(); e != _enemies.end(); e++)
+	        		{
+	        			if (e->getPosition().x <= 					i->getPosition().x &&
+	        				e->getPosition().x + e->getSize().x >= 	i->getPosition().x &&
+	        				e->getPosition().y <= 					i->getPosition().y &&
+	        				e->getPosition().y + e->getSize().y >= 	i->getPosition().y)
+	        			{
+	        				_bullets.erase(i);
+	        				_enemies.erase(e);
+	        			}
+
+	        		std::cout << ++counter << std::endl;
 
 	        		/*
 	        		std::cout << "EnemyPosX <= BulletPosX " << (_enemies.at(e).getPosition().x <= _bullets.at(i).getPosition().x) << " " << _enemies.at(e).getPosition().x << " " << _bullets.at(i).getPosition().x << std::endl;
@@ -115,6 +134,10 @@ void Game::tick()
 	        		std::cout << "EnemyPosY <= BulletPosY " << (_enemies.at(e).getPosition().y <= _bullets.at(i).getPosition().y) << std::endl;
 	        		std::cout << "EnemyPosY+EnemySizeY >= BulletPosY " << (_enemies.at(e).getPosition().y + _enemies.at(e).getSize().y >= _bullets.at(i).getPosition().y) << std::endl << std::endl;
 	        		*/
+
+	        		}
+
+	        		++i;
 	        	}
 	        }
 
@@ -144,7 +167,7 @@ void Game::tick()
 	    	p->draw(_window);
 	    }
 
-	    test.draw(_window);
+	    // test.draw(_window);
 
 	    _window.display();
 
