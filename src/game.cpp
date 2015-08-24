@@ -9,6 +9,7 @@
 #include <math.h>
 #include <iostream>
 #include "Menupoint.hpp"
+#include "Explosion.h"
 
 #ifdef _WIN32
 #include "direntWin.h"
@@ -69,6 +70,8 @@ void Game::tick()
 
 	int counter = 0;
 
+	Explosion explosion;
+
 	while (_window.isOpen())
 	{
 		sf::Event event;
@@ -84,6 +87,8 @@ void Game::tick()
 	        getKeys();
 
 	        _myPlayer.update((int) _window.getSize().x);
+
+	        explosion.update();
 
 	        // test.update(_window);
 
@@ -156,6 +161,8 @@ void Game::tick()
 
 	    _window.clear();
 	    _myPlayer.draw(_window);
+
+	    explosion.draw(_window);
 
 	    for (std::vector<Enemy>::iterator p = _enemies.begin(); p != _enemies.end(); p++)
 	    {

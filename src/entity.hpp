@@ -41,11 +41,11 @@ protected:
 	int 				_movementSpeed = 1;
 	sf::Vector2i		_pos, _size;
 	sf::Sprite 			_sprite;
+	sf::Texture			_texture;
 
 private:
 	float 				_scale;
 	std::string 		_name, _pathToTex;
-	sf::Texture			_texture;
 };
 
 #endif /* ENTITY_HPP_ */
