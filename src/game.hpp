@@ -12,9 +12,11 @@
 #include "Entity.hpp"
 #include "enemy.hpp"
 #include "Player.hpp"
+#include "Explosion.h"
 #include <vector>
 #include <string>
 #include <SFML/System.hpp>
+#include "keyReader.hpp"
 
 class Game
 {
@@ -30,6 +32,8 @@ private:
 	std::vector<Enemy>			_enemies;
 	std::vector<Entity> 		_bullets;
 	std::vector<sf::Texture> 	_textures;
+	std::vector<Explosion>		_explosions;
+	KeyReader					_keySpace, _keyE;
 };
 
 

@@ -44,6 +44,7 @@ Entity::Entity(std::string name, std::string pathToTex, int x, int y)
 Entity::Entity(int x, int y)
 {
 	_pos			= sf::Vector2i(x, y);
+	_sprite.setPosition((sf::Vector2f) _pos);
 	_movementSpeed 	= 1;
 	_scale			= 1;
 }

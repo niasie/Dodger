@@ -13,17 +13,16 @@
 class Explosion: public Entity
 {
 	public:
-		Explosion();
-		virtual ~Explosion();
+		Explosion(sf::Vector2f, sf::Texture&, float);
 
 		void update();
-		void draw(sf::RenderWindow&);
+
+		bool isAnimFinished();
 
 	private:
 		std::vector<sf::Sprite> _animFrames;
-		std::vector<sf::Sprite>::iterator _currentFrame = _animFrames.begin();
 		sf::Clock _animTimer;
-		int _durationAnimFrame = 50;
+		int _durationAnimFrame = 40;
 };
 
 #endif /* SRC_EXPLOSION_H_ */

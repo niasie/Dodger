@@ -13,13 +13,14 @@
 class KeyReader
 {
 public:
-	KeyReader(int delayMilli);
-	bool 		isKeyPressed(sf::Keyboard::Key key);
+	KeyReader(int delayMilli, sf::Keyboard::Key);
+	bool 				isKeyPressed();
 
 private:
-	sf::Clock	_cooldown;
-	sf::Time	_elapsed;
-	int			_delayMilli;
+	sf::Clock			_cooldown;
+	sf::Time			_elapsed;
+	int					_delayMilli;
+	sf::Keyboard::Key 	_key;
 };
 
 #endif /* KEYREADER_HPP_ */

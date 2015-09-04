@@ -20,9 +20,12 @@
 Game::Game()
    : _window(sf::VideoMode(1280, 720), "dodger", sf::Style::Close | sf::Style::Titlebar),
    _myPlayer(500, 500),
-  _enemies(),
-  _bullets(),
-  _textures()
+   _enemies(),
+   _bullets(),
+   _textures(),
+   _explosions(),
+   _keySpace(500, sf::Keyboard::Space),
+   _keyE(50, sf::Keyboard::E)
 {
 	srand(time(0));
 
@@ -64,14 +67,6 @@ void Game::tick()
 	const int loopsPerSec = 30;
 	float enemiesPerSecond = 0.2;
 
-	sf::Font inconsolata;
-	inconsolata.loadFromFile("res/fonts/LiberationSans-Regular.ttf");
-	Menupoint test("PLAY", sf::Vector2i(10, 10), inconsolata);
-
-	int counter = 0;
-
-	Explosion explosion;
-
 	while (_window.isOpen())
 	{
 		sf::Event event;
@@ -86,68 +81,72 @@ void Game::tick()
 	    {
 	        getKeys();
 
-	        _myPlayer.update((int) _window.getSize().x);
+	        _myPlayer.update(_window);
 
-	        explosion.update();
+	        for (std::vector<Explosion>::iterator p = _explosions.begin(); p != _explosions.end();)
+	        {
+	        	if (p->isAnimFinished() == true)
+	        	{
+	        		_explosions.erase(p);
+	        	}
+	        	else
+	        	{
+	        		p->update();
 
-	        // test.update(_window);
+	        		++p;
+	        	}
+	        }
 
 	        for (std::vector<Enemy>::iterator p = _enemies.begin(); p != _enemies.end();)
 	        {
-	        	/*
-	        	if (p->getPosition().y > _window.getSize().y)
+	        	if (p->getPosition().y > (int) _window.getSize().y)
 	        	{
 	        		_enemies.erase(p);
 	        	}
 	        	else
 	        	{
 	        		p->update();
+
 	        		++p;
 	        	}
-	        	*/
-
-	        	p->update();
-	        	++p;
 	        }
 
+	        std::vector<Entity> toBeDeleted;
 	        for (std::vector<Entity>::iterator i = _bullets.begin(); i != _bullets.end();)
 	        {
+	        	int forwardHowOften = 1;
+
 	        	if (i->getPosition().y < 0)
 	        	{
-	        			_bullets.erase(i);
+	        		_bullets.erase(i);
 	        	}
 	        	else
 	        	{
 	        		i->setPositionRel(0, -5);
 
-	        		for (std::vector<Enemy>::iterator e = _enemies.begin(); e != _enemies.end(); e++)
+	        		for (std::vector<Enemy>::iterator e = _enemies.begin(); e != _enemies.end();)
 	        		{
-	        			if (e->getPosition().x <= 					i->getPosition().x &&
-	        				e->getPosition().x + e->getSize().x >= 	i->getPosition().x &&
-	        				e->getPosition().y <= 					i->getPosition().y &&
-	        				e->getPosition().y + e->getSize().y >= 	i->getPosition().y)
+	        			if (e->getSprite().getGlobalBounds().intersects(i->getSprite().getGlobalBounds()))
 	        			{
-	        				_bullets.erase(i);
-	        				_enemies.erase(e);
+	        				_explosions.push_back(Explosion(sf::Vector2f(e->getPosition().x + e->getSize().x / 2, e->getPosition().y + e->getSize().y / 2), _textures.at(4), (_textures.at(4).getSize().y / _textures.at(1).getSize().y) * 1.75));
+
+	        				e = _enemies.erase(e);
 	        			}
-
-	        		std::cout << ++counter << std::endl;
-
-	        		/*
-	        		std::cout << "EnemyPosX <= BulletPosX " << (_enemies.at(e).getPosition().x <= _bullets.at(i).getPosition().x) << " " << _enemies.at(e).getPosition().x << " " << _bullets.at(i).getPosition().x << std::endl;
-	        		std::cout << "EnemyPosX+EnemySizeX >= BulletPosX " << (_enemies.at(e).getPosition().x + _enemies.at(e).getSize().x >= _bullets.at(i).getPosition().x) << " " << _enemies.at(e).getPosition().x + _enemies.at(e).getSize().x << " " << _bullets.at(i).getPosition().x << std::endl;
-	        		std::cout << "EnemyPosY <= BulletPosY " << (_enemies.at(e).getPosition().y <= _bullets.at(i).getPosition().y) << std::endl;
-	        		std::cout << "EnemyPosY+EnemySizeY >= BulletPosY " << (_enemies.at(e).getPosition().y + _enemies.at(e).getSize().y >= _bullets.at(i).getPosition().y) << std::endl << std::endl;
-	        		*/
-
+	        			else
+	        			{
+	        				++e;
+	        				// ++i;
+	        			}
 	        		}
 
 	        		++i;
 	        	}
 	        }
 
+
+
 	        elapsed = enemyTimer.getElapsedTime();
-	        if (enemiesPerSecond < 4.5) enemiesPerSecond = 0.1 * timeSinceStarted.getElapsedTime().asSeconds() + 0.5;
+	        if (enemiesPerSecond < 1) enemiesPerSecond = 0.01 * timeSinceStarted.getElapsedTime().asSeconds() + 0.5;
 	        if (elapsed.asMilliseconds() > (1000 / enemiesPerSecond))
 	        {
 	        	_enemies.push_back(Enemy(_textures.at(1), rand() % _window.getSize().x, -48));
@@ -162,8 +161,6 @@ void Game::tick()
 	    _window.clear();
 	    _myPlayer.draw(_window);
 
-	    explosion.draw(_window);
-
 	    for (std::vector<Enemy>::iterator p = _enemies.begin(); p != _enemies.end(); p++)
 	    {
 	    	p->draw(_window);
@@ -174,7 +171,10 @@ void Game::tick()
 	    	p->draw(_window);
 	    }
 
-	    // test.draw(_window);
+	    for (std::vector<Explosion>::iterator p = _explosions.begin(); p != _explosions.end(); p++)
+	    {
+	    	p->draw(_window);
+	    }
 
 	    _window.display();
 
@@ -183,6 +183,9 @@ void Game::tick()
 
 void Game::getKeys()
 {
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+	if (_keySpace.isKeyPressed())
 		_bullets.push_back(Entity("bullet", _textures.at(0), _myPlayer.getPosition().x + _myPlayer.getSize().x / 2 - _textures.at(1).getSize().x / 2, _myPlayer.getPosition().y));
+
+	if (_keyE.isKeyPressed())
+		_explosions.push_back(Explosion(sf::Vector2f(400, 400), _textures.at(4), 1));
 }

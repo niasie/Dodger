@@ -7,15 +7,16 @@
 
 #include "keyReader.hpp"
 
-KeyReader::KeyReader(int delayMilli)
+KeyReader::KeyReader(int delayMilli, sf::Keyboard::Key key)
 {
 	_delayMilli = delayMilli;
+	_key = key;
 }
 
-bool KeyReader::isKeyPressed(sf::Keyboard::Key key)
+bool KeyReader::isKeyPressed()
 {
 	_elapsed = _cooldown.getElapsedTime();
-	if (sf::Keyboard::isKeyPressed(key) && _elapsed.asMilliseconds() > _delayMilli)
+	if (sf::Keyboard::isKeyPressed(_key) && _elapsed.asMilliseconds() > _delayMilli)
 	{
 		_cooldown.restart();
 		return true;
